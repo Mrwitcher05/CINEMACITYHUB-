@@ -1,85 +1,188 @@
-import re, time
+import re
 from os import environ
 from Script import script 
 
 id_pattern = re.compile(r'^.\d+$')
 
-def is_enabled(value, default):
-    if value.strip().lower() in ["on", "true", "yes", "1", "enable", "y"]: return True
-    elif value.strip().lower() in ["off", "false", "no", "0", "disable", "n"]: return False
-    else: return default
+# Bot information
+SESSION = environ.get('SESSION', 'TNMCBot')
+API_ID = int(environ.get('API_ID', '21280367'))
+API_HASH = environ.get('API_HASH', 'f6aa508be270f5b53c812fd043a08f7d')
+BOT_TOKEN = environ.get('BOT_TOKEN', "")
 
 
-# PyroClient Setup 
-API_ID = int(environ['API_ID'])
-API_HASH = environ['API_HASH']
-BOT_TOKEN = environ['BOT_TOKEN']
+# This Pictures Is For Start Message Picture, You Can Add Multiple By Giving One Space Between Each.
+PICS = (environ.get('PICS', 'https://vault.pictures/p/7430e2d333244b94a23648e0d9a60b82')).split()
 
-# Bot settings
-WEB_SUPPORT = bool(environ.get("WEBHOOK", 'True')) # for web support on/off
-PICS = (environ.get('PICS' ,'https://graph.org/file/01ddfcb1e8203879a63d7.jpg https://graph.org/file/d69995d9846fd4ad632b8.jpg https://graph.org/file/a125497b6b85a1d774394.jpg https://graph.org/file/43d26c54d37f4afb830f7.jpg https://graph.org/file/60c1adffc7cc2015f771c.jpg https://graph.org/file/d7b520240b00b7f083a24.jpg https://graph.org/file/0f336b0402db3f2a20037.jpg https://graph.org/file/39cc4e15cad4519d8e932.jpg https://graph.org/file/d59a1108b1ed1c6c6c144.jpg https://te.legra.ph/file/3a4a79f8d5955e64cbb8e.jpg https://graph.org/file/d69995d9846fd4ad632b8.jpg')).split()
-UPTIME = time.time()
 
-# Admins, Channels & Users
-CACHE_TIME = int(environ.get('CACHE_TIME', 300))
-ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in environ.get('ADMINS', '').split()]
-CHANNELS = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('CHANNELS', '0').split()]
-auth_users = [int(user) if id_pattern.search(user) else user for user in environ.get('AUTH_USERS', '').split()]
-AUTH_USERS = (auth_users + ADMINS) if auth_users else []
-auth_channel = environ.get('AUTH_CHANNEL')
-auth_grp = environ.get('AUTH_GROUP')
+# Admins & Users
+ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in environ.get('ADMINS', '6398757880').split()] # For Multiple Id Use One Space Between Each.
+auth_users = [int(user) if id_pattern.search(user) else user for user in environ.get('AUTH_USERS', '6558711318').split()]  # For Multiple Id Use One Space Between Each.
+AUTH_USERS = (auth_users + ADMINS) if auth_users else [6558711318]
+
+# This Channel Is For When User Start Your Bot Then Bot Send That User Name And Id In This Log Channel, Same For Group Also.
+LOG_CHANNEL = int(environ.get('LOG_CHANNEL', '-1002316391931'))
+
+# This Is File Channel Where You Upload Your File Then Bot Automatically Save It In Database 
+CHANNELS = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('CHANNELS', '-1002485842996').split()]  # For Multiple Id Use One Space Between Each.
+
+# auth_channel means force subscribe channel.
+# if REQUEST_TO_JOIN_MODE is true then force subscribe work like request to join fsub, else if false then work like normal fsub.
+REQUEST_TO_JOIN_MODE = bool(environ.get('REQUEST_TO_JOIN_MODE', False)) # Set True Or False
+TRY_AGAIN_BTN = bool(environ.get('TRY_AGAIN_BTN', False)) # Set True Or False (This try again button is only for request to join fsub not for normal fsub)
+
+# This Is Force Subscribe Channel, also known as Auth Channel 
+auth_channel = environ.get('AUTH_CHANNEL', '-1002296085829') # give your force subscribe channel id here else leave it blank
 AUTH_CHANNEL = int(auth_channel) if auth_channel and id_pattern.search(auth_channel) else None
-AUTH_GROUPS = [int(ch) for ch in auth_grp.split()] if auth_grp else None
+
+# This Channel Is For When User Request File With command or hashtag like - /request or #request
+reqst_channel = environ.get('REQST_CHANNEL_ID', '-1002296085829')
+REQST_CHANNEL = int(reqst_channel) if reqst_channel and id_pattern.search(reqst_channel) else None
+
+# This Is Your Bot Support Group Id , Here Bot Will Not Give File Because This Is Support Group.
+support_chat_id = environ.get('SUPPORT_CHAT_ID', '6558711318')
+SUPPORT_CHAT_ID = int(support_chat_id) if support_chat_id and id_pattern.search(support_chat_id) else None
+
+# This Channel Is For Index Request 
+INDEX_REQ_CHANNEL = int(environ.get('INDEX_REQ_CHANNEL', LOG_CHANNEL))
+
+# This Channel Is For /batch command file store.
+FILE_STORE_CHANNEL = [int(ch) for ch in (environ.get('FILE_STORE_CHANNEL', '-1002411427044')).split()]  # For Multiple Id Use One Space Between Each.
+
+# This Channel Is For Delete Index File, Forward Your File In This Channel Which You Want To Delete Then Bot Automatically Delete That File From Database.
+DELETE_CHANNELS = [int(dch) if id_pattern.search(dch) else dch for dch in environ.get('DELETE_CHANNELS', '0').split()]  # For Multiple Id Use One Space Between Each.
+
 
 # MongoDB information
-DATABASE_URL = environ.get('DATABASE_URL', "")
-DATABASE_NAME = environ.get('DATABASE_NAME', "Cluster0")
-FILE_DB_URL = environ.get("FILE_DB_URL", DATABASE_URL)
-FILE_DB_NAME = environ.get("FILE_DB_NAME", DATABASE_NAME)
-COLLECTION_NAME = environ.get('COLLECTION_NAME', 'Telegram_files')
+DATABASE_URI = environ.get('DATABASE_URI', "mongodb+srv://Best:benny@benny.wto0y.mongodb.net/?retryWrites=true&w=majority&appName=Benny")   # IF Multiple Database Is False Then Fill Only This Database Url.
+DATABASE_NAME = environ.get('DATABASE_NAME', "Best")
+COLLECTION_NAME = environ.get('COLLECTION_NAME', 'TNMCcollection')
 
-# Filters Configuration 
-MAX_RIST_BTNS = int(environ.get('MAX_RIST_BTNS', "10"))
-START_MESSAGE = environ.get('START_MESSAGE', script.START_TXT)
-BUTTON_LOCK_TEXT = environ.get("BUTTON_LOCK_TEXT", script.BUTTON_LOCK_TEXT)
-FORCE_SUB_TEXT = environ.get('FORCE_SUB_TEXT', script.FORCE_SUB_TEXT)
+MULTIPLE_DATABASE = bool(environ.get('MULTIPLE_DATABASE', False)) # Set True or False
 
-WELCOM_PIC = environ.get("WELCOM_PIC", "")
-WELCOM_TEXT = environ.get("WELCOM_TEXT", script.WELCOM_TEXT)
-PMFILTER = is_enabled(environ.get('PMFILTER', "True"), True)
-G_FILTER = is_enabled(environ.get("G_FILTER", "True"), True)
-BUTTON_LOCK = is_enabled(environ.get("BUTTON_LOCK", "True"), True)
-RemoveBG_API = environ.get("RemoveBG_API", "")
+# If Multiple Database Is True Then Fill All Three Below Database Uri Else You Will Get Error.
+O_DB_URI = environ.get('O_DB_URI', "")   # This Db Is For Other Data Store
+F_DB_URI = environ.get('F_DB_URI', "")   # This Db Is For File Data Store
+S_DB_URI = environ.get('S_DB_URI', "")   # This Db is for File Data Store When First Db Is Going To Be Full.
 
-# url shortner
-SHORT_URL = environ.get("SHORT_URL")
-SHORT_API = environ.get("SHORT_API")
+
+# Premium And Referal Settings
+PREMIUM_AND_REFERAL_MODE = bool(environ.get('PREMIUM_AND_REFERAL_MODE', False)) # Set Ture Or False
+
+# If PREMIUM_AND_REFERAL_MODE is True Then Fill Below Variable, If Flase Then No Need To Fill.
+REFERAL_COUNT = int(environ.get('REFERAL_COUNT', '20')) # number of referal count
+REFERAL_PREMEIUM_TIME = environ.get('REFERAL_PREMEIUM_TIME', '1month') # time in week, day, month.
+PAYMENT_QR = environ.get('PAYMENT_QR', 'https://graph.org/file/ce1723991756e48c35aa1.jpg') # payment code picture url.
+PAYMENT_TEXT = environ.get('PAYMENT_TEXT', '<b>- ᴀᴠᴀɪʟᴀʙʟᴇ ᴘʟᴀɴs - \n\n- 30ʀs - 1 ᴡᴇᴇᴋ\n- 50ʀs - 1 ᴍᴏɴᴛʜs\n- 120ʀs - 3 ᴍᴏɴᴛʜs\n- 220ʀs - 6 ᴍᴏɴᴛʜs\n\n🎁 ᴘʀᴇᴍɪᴜᴍ ғᴇᴀᴛᴜʀᴇs 🎁\n\n○ ɴᴏ ɴᴇᴇᴅ ᴛᴏ ᴠᴇʀɪғʏ\n○ ɴᴏ ɴᴇᴇᴅ ᴛᴏ ᴏᴘᴇɴ ʟɪɴᴋ\n○ ᴅɪʀᴇᴄᴛ ғɪʟᴇs\n○ ᴀᴅ-ғʀᴇᴇ ᴇxᴘᴇʀɪᴇɴᴄᴇ\n○ ʜɪɢʜ-sᴘᴇᴇᴅ ᴅᴏᴡɴʟᴏᴀᴅ ʟɪɴᴋ\n○ ᴍᴜʟᴛɪ-ᴘʟᴀʏᴇʀ sᴛʀᴇᴀᴍɪɴɢ ʟɪɴᴋs\n○ ᴜɴʟɪᴍɪᴛᴇᴅ ᴍᴏᴠɪᴇs & sᴇʀɪᴇs\n○ ꜰᴜʟʟ ᴀᴅᴍɪɴ sᴜᴘᴘᴏʀᴛ\n○ ʀᴇǫᴜᴇsᴛ ᴡɪʟʟ ʙᴇ ᴄᴏᴍᴘʟᴇᴛᴇᴅ ɪɴ 1ʜ ɪꜰ ᴀᴠᴀɪʟᴀʙʟᴇ\n\n✨ ᴜᴘɪ ɪᴅ - <code>demo@okxyz</code>\n\nᴄʟɪᴄᴋ ᴛᴏ ᴄʜᴇᴄᴋ ʏᴏᴜʀ ᴀᴄᴛɪᴠᴇ ᴘʟᴀɴ /myplan\n\n💢 ᴍᴜsᴛ sᴇɴᴅ sᴄʀᴇᴇɴsʜᴏᴛ ᴀғᴛᴇʀ ᴘᴀʏᴍᴇɴᴛ\n\n‼️ ᴀғᴛᴇʀ sᴇɴᴅɪɴɢ ᴀ sᴄʀᴇᴇɴsʜᴏᴛ ᴘʟᴇᴀsᴇ ɢɪᴠᴇ ᴜs sᴏᴍᴇ ᴛɪᴍᴇ ᴛᴏ ᴀᴅᴅ ʏᴏᴜ ɪɴ ᴛʜᴇ ᴘʀᴇᴍɪᴜᴍ</b>')
+
+
+# Clone Information : If Clone Mode Is True Then Bot Clone Other Bots.
+CLONE_MODE = bool(environ.get('CLONE_MODE', False)) # Set True or False
+CLONE_DATABASE_URI = environ.get('CLONE_DATABASE_URI', "") # Necessary If clone mode is true
+PUBLIC_FILE_CHANNEL = environ.get('PUBLIC_FILE_CHANNEL', '@TNMCartoons') # Public Channel Username Without @ or without https://t.me/ and Bot Is Admin With Full Right.
+
+
+# Links
+GRP_LNK = environ.get('GRP_LNK', 'https://t.me/+nLQ95TjVtdpjYjQ9')
+CHNL_LNK = environ.get('CHNL_LNK', 'https://t.me/TNMCartoons')
+SUPPORT_CHAT = environ.get('SUPPORT_CHAT', 'https://t.me/HatakeKakashi41') # Support Chat Link Without https:// or @
+OWNER_LNK = environ.get('OWNER_LNK', 'https://t.me/HatakeKakashi41')
+
+# True Or False
+AI_SPELL_CHECK = bool(environ.get('AI_SPELL_CHECK', True))
+PM_SEARCH = bool(environ.get('PM_SEARCH', True))
+BUTTON_MODE = bool(environ.get('BUTTON_MODE', True))
+MAX_BTN = bool(environ.get('MAX_BTN', True))
+IS_TUTORIAL = bool(environ.get('IS_TUTORIAL', False))
+IMDB = bool(environ.get('IMDB', False))
+AUTO_FFILTER = bool(environ.get('AUTO_FFILTER', True))
+AUTO_DELETE = bool(environ.get('AUTO_DELETE', True))
+LONG_IMDB_DESCRIPTION = bool(environ.get("LONG_IMDB_DESCRIPTION", False))
+SPELL_CHECK_REPLY = bool(environ.get("SPELL_CHECK_REPLY", True))
+MELCOW_NEW_USERS = bool(environ.get('MELCOW_NEW_USERS', True))
+PROTECT_CONTENT = bool(environ.get('PROTECT_CONTENT', False))
+PUBLIC_FILE_STORE = bool(environ.get('PUBLIC_FILE_STORE', True))
+NO_RESULTS_MSG = bool(environ.get("NO_RESULTS_MSG", False))
+USE_CAPTION_FILTER = bool(environ.get('USE_CAPTION_FILTER', True))
+
+
+# Token Verification Info :
+VERIFY = bool(environ.get('VERIFY', False))
+VERIFY_SHORTLINK_URL = environ.get('VERIFY_SHORTLINK_URL', '')
+VERIFY_SHORTLINK_API = environ.get('VERIFY_SHORTLINK_API', '')
+VERIFY_TUTORIAL = environ.get('VERIFY_TUTORIAL', '')
+
+# If You Fill Second Shortner Then Bot Attach Both First And Second Shortner And Use It For Verify.
+VERIFY_SECOND_SHORTNER = bool(environ.get('VERIFY_SECOND_SHORTNER', False))
+# if verify second shortner is True then fill below url and api
+VERIFY_SND_SHORTLINK_URL = environ.get('VERIFY_SND_SHORTLINK_URL', '')
+VERIFY_SND_SHORTLINK_API = environ.get('VERIFY_SND_SHORTLINK_API', '')
+
+
+# Shortlink Info
+SHORTLINK_MODE = bool(environ.get('SHORTLINK_MODE', False)) # Set True Or False
+SHORTLINK_URL = environ.get('SHORTLINK_URL', '')
+SHORTLINK_API = environ.get('SHORTLINK_API', '')
+TUTORIAL = environ.get('TUTORIAL', '') # How Open Shortner Link Video Link , Channel Link Where You Upload Your Video.
+
 
 # Others
-IMDB_DELET_TIME = int(environ.get('IMDB_DELET_TIME', "300"))
-LOG_CHANNEL = int(environ.get('LOG_CHANNEL', 0))
-SUPPORT_CHAT = environ.get('SUPPORT_CHAT', 'MKN_BOTZ_DISCUSSION_GROUP')
-P_TTI_SHOW_OFF = is_enabled(environ.get('P_TTI_SHOW_OFF', "True"), True)
-PM_IMDB = is_enabled(environ.get('PM_IMDB', "True"), True)
-IMDB = is_enabled(environ.get('IMDB', "True"), True)
-SINGLE_BUTTON = is_enabled(environ.get('SINGLE_BUTTON', "True"), True)
-CUSTOM_FILE_CAPTION = environ.get("CUSTOM_FILE_CAPTION", "{file_name}")
-BATCH_FILE_CAPTION = environ.get("BATCH_FILE_CAPTION", None)
-IMDB_TEMPLATE = environ.get("IMDB_TEMPLATE", script.IMDB_TEMPLATE)
-LONG_IMDB_DESCRIPTION = is_enabled(environ.get("LONG_IMDB_DESCRIPTION", "False"), False)
-SPELL_CHECK_REPLY = is_enabled(environ.get("SPELL_CHECK_REPLY", "True"), True)
+CACHE_TIME = int(environ.get('CACHE_TIME', 1800))
+MAX_B_TN = environ.get("MAX_B_TN", "5")
+PORT = environ.get("PORT", "8080")
+MSG_ALRT = environ.get('MSG_ALRT', 'Hello My Dear Friends ❤️')
+CUSTOM_FILE_CAPTION = environ.get("CUSTOM_FILE_CAPTION", f"{script.CAPTION}")
+BATCH_FILE_CAPTION = environ.get("BATCH_FILE_CAPTION", CUSTOM_FILE_CAPTION)
+IMDB_TEMPLATE = environ.get("IMDB_TEMPLATE", f"{script.IMDB_TEMPLATE_TXT}")
 MAX_LIST_ELM = environ.get("MAX_LIST_ELM", None)
-FILE_STORE_CHANNEL = [int(ch) for ch in (environ.get('FILE_STORE_CHANNEL', '')).split()]
-MELCOW_NEW_USERS = is_enabled(environ.get('MELCOW_NEW_USERS', "True"), True)
-PROTECT_CONTENT = is_enabled(environ.get('PROTECT_CONTENT', "False"), False)
-PUBLIC_FILE_STORE = is_enabled(environ.get('PUBLIC_FILE_STORE', "True"), True)
-LOG_MSG = "{} Iꜱ Rᴇsᴛᴀʀᴛᴇᴅ....✨\n\n🗓️ Dᴀᴛᴇ : {}\n⏰ Tɪᴍᴇ : {}\n\n🖥️ Rᴇᴏᴩ: {}\n🉐 Vᴇʀsɪᴏɴ: {}\n🧾 Lɪᴄᴇɴꜱᴇ: {}\n©️ Cᴏᴩʏʀɪɢʜᴛ: {}"
 
-# Start Command Reactions
+
+# Choose Option Settings 
+LANGUAGES = ["tamil", "tam" ,"english", "eng"]
+SEASONS = ["season 1", "season 2", "season 3", "season 4", "season 5", "season 6", "season 7", "season 8", "season 9", "season 10"]
+EPISODES = ["E01", "E02", "E03", "E04", "E05", "E06", "E07", "E08", "E09", "E10", "E11", "E12", "E13", "E14", "E15", "E16", "E17", "E18", "E19", "E20", "E21", "E22", "E23", "E24", "E25", "E26", "E27", "E28", "E29", "E30", "E31", "E32", "E33", "E34", "E35", "E36", "E37", "E38", "E39", "E40"]
+QUALITIES = ["360p", "480p", "720p", "1080p", "1440p", "2160p"]
+YEARS = ["1900", "1991", "1992", "1993", "1994", "1995", "1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"]
+
+
+                           # Don't Remove Credit @VJ_Botz
+                           # Subscribe YouTube Channel For Amazing Bot @Tech_VJ
+                           # Ask Doubt on telegram @KingVJ01
+
+
+# Online Stream and Download
+STREAM_MODE = bool(environ.get('STREAM_MODE', True)) # Set True or False
+
+# If Stream Mode Is True Then Fill All Required Variable, If False Then Don't Fill.
+MULTI_CLIENT = False
+SLEEP_THRESHOLD = int(environ.get('SLEEP_THRESHOLD', '60'))
+PING_INTERVAL = int(environ.get("PING_INTERVAL", "1200"))  # 20 minutes
+if 'DYNO' in environ:
+    ON_HEROKU = True
+else:
+    ON_HEROKU = False
+URL = environ.get("URL", "https://testofvjfilter-1fa60b1b8498.herokuapp.com/")
+
+
+# Rename Info : If True Then Bot Rename File Else Not
+RENAME_MODE = bool(environ.get('RENAME_MODE', False)) # Set True or False
+
+
+# Auto Approve Info : If True Then Bot Approve New Upcoming Join Request Else Not
+AUTO_APPROVE_MODE = bool(environ.get('AUTO_APPROVE_MODE', False)) # Set True or False
+
+
+# All Command Reactions
 REACTIONS = ["🤝", "😇", "🤗", "😍", "👍", "🎅", "😐", "🥰", "🤩", "😱", "🤣", "😘", "👏", "😛", "😈", "🎉", "⚡️", "🫡", "🤓", "😎", "🏆", "🔥", "🤭", "🌚", "🆒", "👻", "😁"] #don't add any emoji because tg not support all emoji reactions
 
 
-
-
-
-
+if MULTIPLE_DATABASE == False:
+    USER_DB_URI = DATABASE_URI
+    OTHER_DB_URI = DATABASE_URI
+    FILE_DB_URI = DATABASE_URI
+    SEC_FILE_DB_URI = DATABASE_URI
+else:
+    USER_DB_URI = DATABASE_URI    # This Db is for User Data Store
+    OTHER_DB_URI = O_DB_URI       # This Db Is For Other Data Store
+    FILE_DB_URI = F_DB_URI        # This Db Is For File Data Store
+    SEC_FILE_DB_URI = S_DB_URI    # This Db is for File Data Store When First Db Is Going To Be Full.
