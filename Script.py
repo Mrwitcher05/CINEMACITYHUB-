@@ -228,8 +228,6 @@ Wᴇʟᴄᴏᴍᴇ ᴛᴏ {chat}.
 🌟 Rᴀᴛɪɴɢ: <a href={url}/ratings>{rating}</a>/10"""
 
 
-ALRT_TXT = """ᴊᴀʟᴅɪ ʏᴇʜᴀ sᴇ ʜᴀᴛᴏ !"""
-
 
   
 
